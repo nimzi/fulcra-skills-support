@@ -182,5 +182,6 @@ def calculate_zoom_level(bounds: Tuple[float, float, float, float],
     else:
         zoom_lat = math.log2(2.0 * math.pi * map_height / (merc_span * TILE_SIZE))
 
-    zoom = min(zoom_lon, zoom_lat) - 0.3  # small padding so edges aren't clipped
+    # bounds_from_locations already adds 10% spatial padding, so no extra reduction needed
+    zoom = min(zoom_lon, zoom_lat)
     return max(1, min(20, int(zoom)))
