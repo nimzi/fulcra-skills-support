@@ -8,7 +8,7 @@ Python library for visualizing GPS location data from the Fulcra API with both s
 - **Data Processing**: Fetch and process location data from Fulcra API  
 - **Stay Detection**: Advanced GPS stay detection algorithm
 - **Static Visualization**: Generate PNG/SVG maps using Plotly
-- **Interactive Visualization**: Create interactive HTML maps using Folium
+- **Interactive Visualization**: Create interactive HTML maps using Folium _(not yet implemented)_
 - **Agent-Friendly**: Simple API designed for easy agent integration
 
 ## Installation
@@ -25,13 +25,12 @@ from fulcra_skills_support import FulcraVisualizer
 # Initialize with saved token
 viz = FulcraVisualizer.from_token_file("~/.config/fulcra/token.json")
 
-# Generate interactive map for a day
-interactive_map = viz.daily_path_interactive("2026-05-09")
-viz.save_interactive_map(interactive_map, "daily_path.html")
+# Generate a static map for a day
+fig = viz.daily_path_static("2026-05-09")
+viz.save_static_map(fig, "daily_path.png")
 
-# Detect stays and visualize
+# Detect stays
 stays = viz.detect_stays("2026-05-09")
-combined_map = viz.paths_and_stays_interactive("2026-05-09")
 ```
 
 ## Authentication
@@ -55,9 +54,12 @@ viz = FulcraVisualizer.from_token_file("~/.config/fulcra/token.json")
 - `path_by_speed_static(date)` - Color-coded by speed
 - `stays_heatmap_static(date)` - Stay locations heatmap
 
-### Interactive Maps (Folium)
+### Interactive Maps (Folium) — not yet implemented
+
+The following methods are defined but raise `NotImplementedError` in v0.1.0:
+
 - `daily_path_interactive(date)` - Interactive trajectory with popups
-- `path_by_speed_interactive(date)` - Color-coded interactive path  
+- `path_by_speed_interactive(date)` - Color-coded interactive path
 - `stays_heatmap_interactive(date)` - Interactive heatmap with zoom
 - `animated_path(date)` - Time-lapse animation
 - `directional_flow(date)` - Direction arrows
