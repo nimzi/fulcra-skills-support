@@ -136,62 +136,51 @@ def center_from_bounds(bounds: Tuple[float, float, float, float]) -> Tuple[float
     return ((min_lat + max_lat) / 2, (min_lon + max_lon) / 2)
 
 
-def calculate_zoom_level(bounds: Tuple[float, float, float, float], 
+def calculate_zoom_level(bounds: Tuple[float, float, float, float],
                         map_width: int = 800, map_height: int = 600) -> int:
     """
-    Estimate appropriate zoom level for given bounds and map size
-    
+    Estimate appropriate zoom level for given bounds and map size.
+
+    Computes zoom independently for the longitude (width) and latitude (height)
+    dimensions using Mercator projection math, then takes the more restrictive
+    (smaller) value so the full track fits in both dimensions.
+
     Parameters
     ----------
     bounds : tuple
         (min_lat, min_lon, max_lat, max_lon)
     map_width, map_height : int
         Map dimensions in pixels
-        
-    Returns  
+
+    Returns
     -------
     int
-        Zoom level (typically 1-20)
+        Zoom level (1-20)
     """
     min_lat, min_lon, max_lat, max_lon = bounds
-    
-    # Calculate span
+
     lat_span = max_lat - min_lat
     lon_span = max_lon - min_lon
-    
-    # Rough calculation based on degrees per pixel at different zoom levels
-    # This is approximate and works for most mid-latitude locations
-    max_span = max(lat_span, lon_span)
-    
-    if max_span >= 180:
-        return 1
-    elif max_span >= 90:
-        return 2
-    elif max_span >= 45:
-        return 3
-    elif max_span >= 22.5:
-        return 4
-    elif max_span >= 11.25:
-        return 5
-    elif max_span >= 5.625:
-        return 6
-    elif max_span >= 2.8125:
-        return 7
-    elif max_span >= 1.40625:
-        return 8
-    elif max_span >= 0.703125:
-        return 9
-    elif max_span >= 0.3515625:
-        return 10
-    elif max_span >= 0.17578125:
-        return 11
-    elif max_span >= 0.087890625:
-        return 12
-    elif max_span >= 0.0439453125:
-        return 13
-    elif max_span >= 0.02197265625:
+
+    if lat_span <= 0 or lon_span <= 0:
         return 14
-    elif max_span >= 0.010986328125:
-        return 15
+
+    # Mapbox tiles are 512 px at zoom 0
+    TILE_SIZE = 512.0
+
+    # Zoom for longitude: linear in Mercator
+    zoom_lon = math.log2(360.0 * map_width / (lon_span * TILE_SIZE))
+
+    # Zoom for latitude: use Mercator y-projection
+    def _merc_y(lat: float) -> float:
+        rad = math.radians(max(-85.0, min(85.0, lat)))
+        return math.log(math.tan(math.pi / 4.0 + rad / 2.0))
+
+    merc_span = _merc_y(max_lat) - _merc_y(min_lat)
+    if merc_span <= 0:
+        zoom_lat = zoom_lon
     else:
-        return 16
+        zoom_lat = math.log2(2.0 * math.pi * map_height / (merc_span * TILE_SIZE))
+
+    zoom = min(zoom_lon, zoom_lat) - 0.3  # small padding so edges aren't clipped
+    return max(1, min(20, int(zoom)))
