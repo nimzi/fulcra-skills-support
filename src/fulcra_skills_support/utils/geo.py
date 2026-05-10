@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import time
 from typing import List, Tuple, Union
 
 import pandas as pd
@@ -185,3 +186,32 @@ def calculate_zoom_level(bounds: Tuple[float, float, float, float],
     # bounds_from_locations already adds 10% spatial padding, so no extra reduction needed
     zoom = min(zoom_lon, zoom_lat)
     return max(1, min(20, int(zoom)))
+
+
+def reverse_geocode(lat: float, lon: float) -> str:
+    """
+    Return a short human-readable place name for a coordinate using Nominatim.
+
+    Tries fields in order: name, amenity, road+suburb, suburb, neighbourhood.
+    Falls back to the first component of the full address string.
+    Nominatim requires max 1 req/s — callers processing multiple points should
+    space calls apart; this function does not sleep internally.
+    """
+    try:
+        from geopy.geocoders import Nominatim
+        geolocator = Nominatim(user_agent="fulcra-skills-support/0.1")
+        location = geolocator.reverse((lat, lon), exactly_one=True, language="en")
+        if location is None:
+            return f"{lat:.4f}, {lon:.4f}"
+        addr = location.raw.get("address", {})
+        # Prefer specific place names over generic road/area names
+        for field in ("name", "amenity", "building", "tourism", "leisure"):
+            if addr.get(field):
+                return addr[field]
+        road = addr.get("road", "")
+        suburb = addr.get("suburb") or addr.get("neighbourhood") or addr.get("village") or ""
+        if road and suburb:
+            return f"{road}, {suburb}"
+        return suburb or road or location.address.split(",")[0]
+    except Exception:
+        return f"{lat:.4f}, {lon:.4f}"

@@ -10,6 +10,7 @@ Commands requiring a date accept YYYY-MM-DD format.
 from __future__ import annotations
 
 import sys
+import time
 from pathlib import Path
 
 from .auth import (
@@ -131,6 +132,7 @@ def cmd_daily_path() -> None:
     out = PATH_MAP_DIR / f"fulcra_path_{date}.png"
     try:
         from .visualization.static import StaticMapGenerator
+        from .utils.geo import reverse_geocode
         viz = _get_visualizer()
         print(f"Fetching data and detecting stays for {date}...")
         locations = viz.fetch_daily_data(date)
@@ -138,12 +140,44 @@ def cmd_daily_path() -> None:
             print("No location data found for this date.")
             sys.exit(0)
         stays = viz.detect_stays(date)
+        stays_sorted = sorted(stays, key=lambda s: s["entry_time"])
+
+        # Reverse geocode each stay (Nominatim: 1 req/s max)
+        if stays_sorted:
+            print("Reverse geocoding stay locations...")
+        place_names = []
+        for stay in stays_sorted:
+            place_names.append(reverse_geocode(stay["centroid_lat"], stay["centroid_lon"]))
+            time.sleep(1.1)
+
         generator = StaticMapGenerator()
         fig = generator.daily_path_with_stays_static(
-            locations, stays, title=f"Daily path — {date}"
+            locations, stays_sorted, title=f"Daily path — {date}"
         )
         generator.save_static_map(fig, out)
-        print(f"Saved to {out} ({len(locations)} points, {len(stays)} stays)")
+        print(f"Saved to {out} ({len(locations)} points, {len(stays_sorted)} stays)\n")
+
+        # Print stay legend
+        if stays_sorted:
+            def _fmt(iso: str) -> str:
+                from datetime import datetime
+                return datetime.fromisoformat(iso).strftime("%H:%M")
+
+            def _dur(s: float) -> str:
+                m = int(s) // 60
+                return f"{m // 60}h {m % 60}m" if m >= 60 else f"{m}m"
+
+            col_w = max(len(n) for n in place_names) + 2
+            header = f"{'#':<3}  {'Location':<{col_w}}  {'Lat':>9}  {'Lon':>10}  {'Entry':>5}  {'Exit':>5}  {'Duration'}"
+            print(header)
+            print("-" * len(header))
+            for i, (stay, name) in enumerate(zip(stays_sorted, place_names), 1):
+                print(
+                    f"{i:<3}  {name:<{col_w}}  "
+                    f"{stay['centroid_lat']:>9.4f}  {stay['centroid_lon']:>10.4f}  "
+                    f"{_fmt(stay['entry_time']):>5}  {_fmt(stay['exit_time']):>5}  "
+                    f"{_dur(stay['duration_seconds'])}"
+                )
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
