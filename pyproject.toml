@@ -1,0 +1,80 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fulcra-skills-support"
+version = "0.1.0"
+description = "Python library for visualizing Fulcra API location data with static and interactive maps"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Paul", email = "paul@example.com"},
+]
+keywords = ["fulcra", "gps", "location", "visualization", "maps"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+
+dependencies = [
+    "fulcra-api>=0.1.30",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "plotly>=5.17.0",
+    "folium>=0.20.0",
+    "pyarrow>=19.0.0",
+    "pytz>=2023.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.7.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.5.0",
+]
+advanced = [
+    "movingpandas>=0.18.0",
+    "geopandas>=0.14.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/paul/fulcra-skills-support"
+Repository = "https://github.com/paul/fulcra-skills-support"
+Documentation = "https://github.com/paul/fulcra-skills-support#readme"
+Issues = "https://github.com/paul/fulcra-skills-support/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fulcra_skills_support"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
