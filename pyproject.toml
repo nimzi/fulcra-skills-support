@@ -30,10 +30,11 @@ dependencies = [
     "fulcra-api>=0.1.30",
     "pandas>=2.0.0",
     "numpy>=1.24.0",
-    "plotly>=5.17.0",
-    "kaleido>=1.0.0",
-    "geopy>=2.3.0",
+    "matplotlib>=3.7.0",
+    "contextily>=1.4.0",
+    "scipy>=1.9.0",
     "folium>=0.20.0",
+    "geopy>=2.3.0",
     "pyarrow>=19.0.0",
     "pytz>=2023.3",
 ]
@@ -61,10 +62,10 @@ fulcra-detect-stays = "fulcra_skills_support.cli:cmd_detect_stays"
 fulcra-daily-path   = "fulcra_skills_support.cli:cmd_daily_path"
 
 [project.urls]
-Homepage = "https://github.com/paul/fulcra-skills-support"
-Repository = "https://github.com/paul/fulcra-skills-support"
-Documentation = "https://github.com/paul/fulcra-skills-support#readme"
-Issues = "https://github.com/paul/fulcra-skills-support/issues"
+Homepage = "https://github.com/nimzi/fulcra-skills-support"
+Repository = "https://github.com/nimzi/fulcra-skills-support"
+Documentation = "https://github.com/nimzi/fulcra-skills-support#readme"
+Issues = "https://github.com/nimzi/fulcra-skills-support/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/fulcra_skills_support"]

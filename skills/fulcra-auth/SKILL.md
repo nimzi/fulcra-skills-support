@@ -8,6 +8,13 @@ metadata.openclaw:
 
 # Fulcra Authentication
 
+## Requirements
+
+This skill requires the `fulcra-skills-support` library:
+```
+pip install git+https://github.com/nimzi/fulcra-skills-support.git
+```
+
 Authenticate the user with the Fulcra API. The token is saved to
 `~/.config/fulcra/token.json` and reused by all other Fulcra skills.
 

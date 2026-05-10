@@ -131,7 +131,7 @@ def cmd_daily_path() -> None:
     date = _require_date("daily-path")
     out = PATH_MAP_DIR / f"fulcra_path_{date}.png"
     try:
-        from .visualization.static import StaticMapGenerator
+        from .visualization.interactive import InteractiveMapGenerator
         from .utils.geo import reverse_geocode
         viz = _get_visualizer()
         print(f"Fetching data and detecting stays for {date}...")
@@ -150,11 +150,10 @@ def cmd_daily_path() -> None:
             place_names.append(reverse_geocode(stay["centroid_lat"], stay["centroid_lon"]))
             time.sleep(1.1)
 
-        generator = StaticMapGenerator()
-        fig = generator.daily_path_with_stays_static(
-            locations, stays_sorted, title=f"Daily path — {date}"
-        )
-        generator.save_static_map(fig, out)
+        print("Rendering map...")
+        gen = InteractiveMapGenerator()
+        m = gen.daily_path_with_stays(locations, stays_sorted, title=f"Daily path — {date}")
+        gen.render_to_png(m, out)
         print(f"Saved to {out} ({len(locations)} points, {len(stays_sorted)} stays)\n")
 
         # Print stay legend

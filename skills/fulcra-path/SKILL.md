@@ -8,6 +8,13 @@ metadata.openclaw:
 
 # Fulcra Daily Path Map
 
+## Requirements
+
+This skill requires the `fulcra-skills-support` library:
+```
+pip install git+https://github.com/nimzi/fulcra-skills-support.git
+```
+
 Generate a static PNG map of the user's GPS movement trajectory with stay locations
 overlaid as markers for a given date.
 

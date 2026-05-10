@@ -8,6 +8,13 @@ metadata.openclaw:
 
 # Fulcra Stay Detection
 
+## Requirements
+
+This skill requires the `fulcra-skills-support` library:
+```
+pip install git+https://github.com/nimzi/fulcra-skills-support.git
+```
+
 Detect stays (locations where the user paused for a significant time) for a given date.
 
 ## Step 0: Check authentication
