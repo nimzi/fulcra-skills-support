@@ -31,6 +31,7 @@ dependencies = [
     "pandas>=2.0.0",
     "numpy>=1.24.0",
     "plotly>=5.17.0",
+    "kaleido>=1.0.0",
     "folium>=0.20.0",
     "pyarrow>=19.0.0",
     "pytz>=2023.3",

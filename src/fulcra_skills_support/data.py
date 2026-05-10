@@ -147,7 +147,7 @@ def preprocess_locations(df: pd.DataFrame) -> pd.DataFrame:
     df = df[(df['lat'].between(-90, 90)) & (df['lon'].between(-180, 180))]
     
     # Convert timestamp to datetime for sorting
-    df['timestamp_dt'] = pd.to_datetime(df['timestamp'])
+    df['timestamp_dt'] = pd.to_datetime(df['timestamp'], format='ISO8601', utc=True)
     df = df.sort_values('timestamp_dt')
     
     # Remove duplicates (same timestamp and location)
@@ -177,7 +177,7 @@ def calculate_movement_metrics(df: pd.DataFrame) -> pd.DataFrame:
         return df
     
     # Convert timestamps to datetime
-    timestamps = pd.to_datetime(df['timestamp'])
+    timestamps = pd.to_datetime(df['timestamp'], format='ISO8601', utc=True)
     
     # Calculate distances between consecutive points
     distances = []
