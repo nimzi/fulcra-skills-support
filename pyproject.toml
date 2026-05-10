@@ -50,6 +50,11 @@ advanced = [
     "geopandas>=0.14.0",
 ]
 
+[project.scripts]
+fulcra-check-token = "fulcra_skills_support.cli:cmd_check_token"
+fulcra-auth-step1  = "fulcra_skills_support.cli:cmd_auth_step1"
+fulcra-auth-step2  = "fulcra_skills_support.cli:cmd_auth_step2"
+
 [project.urls]
 Homepage = "https://github.com/paul/fulcra-skills-support"
 Repository = "https://github.com/paul/fulcra-skills-support"

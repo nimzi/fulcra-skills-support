@@ -15,7 +15,7 @@ Use this skill to authenticate with the Fulcra API. The token is saved to
 
 Run:
 ```
-python3 {baseDir}/check_token.py
+python3 -m fulcra_skills_support.cli check-token
 ```
 
 If it prints "Token valid", authentication is already complete — skip to Step 3.
@@ -24,7 +24,7 @@ If it prints "Token valid", authentication is already complete — skip to Step 
 
 Run:
 ```
-python3 {baseDir}/auth_step1.py
+python3 -m fulcra_skills_support.cli auth-step1
 ```
 
 Read the output carefully. Find the **AUTHORIZATION URL** line and show it to the
@@ -40,7 +40,7 @@ before continuing.
 
 Only after the user confirms they have authorized in their browser, run:
 ```
-python3 {baseDir}/auth_step2.py
+python3 -m fulcra_skills_support.cli auth-step2
 ```
 
 This polls the authorization server for the token (up to 120 seconds).

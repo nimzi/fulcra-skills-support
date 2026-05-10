@@ -19,6 +19,8 @@ except ImportError:
     FULCRA_OIDC_DOMAIN = None
     FULCRA_OIDC_CLIENT_ID = None
 
+DEFAULT_TOKEN_PATH = Path.home() / ".config" / "fulcra" / "token.json"
+
 
 class FulcraAuthError(RuntimeError):
     """Raised when authentication operations fail"""
