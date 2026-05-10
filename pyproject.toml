@@ -51,9 +51,12 @@ advanced = [
 ]
 
 [project.scripts]
-fulcra-check-token = "fulcra_skills_support.cli:cmd_check_token"
-fulcra-auth-step1  = "fulcra_skills_support.cli:cmd_auth_step1"
-fulcra-auth-step2  = "fulcra_skills_support.cli:cmd_auth_step2"
+fulcra-check-token  = "fulcra_skills_support.cli:cmd_check_token"
+fulcra-auth-step1   = "fulcra_skills_support.cli:cmd_auth_step1"
+fulcra-auth-step2   = "fulcra_skills_support.cli:cmd_auth_step2"
+fulcra-fetch-data   = "fulcra_skills_support.cli:cmd_fetch_data"
+fulcra-detect-stays = "fulcra_skills_support.cli:cmd_detect_stays"
+fulcra-daily-path   = "fulcra_skills_support.cli:cmd_daily_path"
 
 [project.urls]
 Homepage = "https://github.com/paul/fulcra-skills-support"

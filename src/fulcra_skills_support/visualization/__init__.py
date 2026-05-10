@@ -1,12 +1,10 @@
 """Visualization modules for fulcra-skills-support"""
 
 from .styles import ColorSchemes, MapStyles
-from .static import StaticMapGenerator  
-from .interactive import InteractiveMapGenerator
+from .static import StaticMapGenerator
 
 __all__ = [
     "ColorSchemes",
-    "MapStyles", 
+    "MapStyles",
     "StaticMapGenerator",
-    "InteractiveMapGenerator",
 ]
