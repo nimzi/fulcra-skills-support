@@ -9,13 +9,15 @@ agent skills.
 __version__ = "0.1.0"
 
 from .core import FulcraVisualizer
-from .auth import TokenData, FulcraAuthError
+from .auth import TokenData, FulcraAuthError, start_device_auth_flow, complete_device_auth_flow
 from .stay_detection import StayDetector, Stay, Observation
 
 __all__ = [
     "FulcraVisualizer",
-    "TokenData", 
+    "TokenData",
     "FulcraAuthError",
+    "start_device_auth_flow",
+    "complete_device_auth_flow",
     "StayDetector",
     "Stay",
     "Observation",

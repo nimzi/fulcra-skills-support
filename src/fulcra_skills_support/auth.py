@@ -127,6 +127,78 @@ class TokenManager:
         return client, updated
 
 
+def start_device_auth_flow(
+    oidc_domain: Optional[str] = None,
+    oidc_client_id: Optional[str] = None,
+) -> dict:
+    """
+    Start OAuth2 device authorization flow (non-blocking).
+
+    Returns {"verification_uri": str, "user_code": str}.
+    Saves device state to /tmp/fulcra_auth_state.json for complete_device_auth_flow().
+    """
+    if FulcraAPI is None:
+        raise FulcraAuthError("fulcra-api is not installed. Run: pip install fulcra-api")
+
+    client = FulcraAPI(
+        oidc_domain=oidc_domain or FULCRA_OIDC_DOMAIN,
+        oidc_client_id=oidc_client_id or FULCRA_OIDC_CLIENT_ID,
+    )
+
+    device_code, uri, user_code = client._request_device_code(
+        client.oidc_domain, client.oidc_client_id, client.oidc_scope, client.oidc_audience
+    )
+
+    state = {
+        "device_code": device_code,
+        "oidc_domain": client.oidc_domain,
+        "oidc_client_id": client.oidc_client_id,
+    }
+    Path("/tmp/fulcra_auth_state.json").write_text(json.dumps(state))
+
+    return {"verification_uri": uri, "user_code": user_code}
+
+
+def complete_device_auth_flow(
+    oidc_domain: Optional[str] = None,
+    oidc_client_id: Optional[str] = None,
+) -> TokenData:
+    """
+    Complete OAuth2 device authorization flow by polling for the token.
+
+    Reads device state from /tmp/fulcra_auth_state.json (written by start_device_auth_flow()).
+    Polls up to 120 seconds then raises FulcraAuthError on timeout.
+    """
+    if FulcraAPI is None:
+        raise FulcraAuthError("fulcra-api is not installed. Run: pip install fulcra-api")
+
+    state_path = Path("/tmp/fulcra_auth_state.json")
+    if not state_path.exists():
+        raise FulcraAuthError("No pending device auth. Run start_device_auth_flow() first.")
+
+    state = json.loads(state_path.read_text())
+    device_code = state["device_code"]
+
+    client = FulcraAPI(
+        oidc_domain=oidc_domain or state.get("oidc_domain") or FULCRA_OIDC_DOMAIN,
+        oidc_client_id=oidc_client_id or state.get("oidc_client_id") or FULCRA_OIDC_CLIENT_ID,
+    )
+
+    stop_at = datetime.datetime.now() + datetime.timedelta(seconds=120)
+    while datetime.datetime.now() < stop_at:
+        token, expiration = client.get_token(device_code)
+        if token is not None:
+            state_path.unlink(missing_ok=True)
+            return TokenData(
+                access_token=token,
+                refresh_token=client.get_cached_refresh_token(),
+                access_token_expiration=expiration,
+            )
+        time.sleep(2.0)
+
+    raise FulcraAuthError("Authorization timed out. Please try again.")
+
+
 def run_device_auth(oidc_domain: Optional[str] = None, oidc_client_id: Optional[str] = None) -> TokenData:
     """
     Run OAuth2 device authorization flow
