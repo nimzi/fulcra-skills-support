@@ -75,6 +75,59 @@ class StaticMapGenerator:
         fig.update_layout(**layout)
         return fig
     
+    def daily_path_with_stays_static(self, locations_df: pd.DataFrame,
+                                     stays: List[Dict], **options) -> go.Figure:
+        """
+        Create static trajectory map with stay locations overlaid as markers.
+
+        Parameters
+        ----------
+        locations_df : DataFrame
+            Location data with columns: lat, lon, timestamp
+        stays : list of dicts
+            Stay records with keys: centroid_lat, centroid_lon, duration_seconds,
+            entry_time, exit_time
+        **options
+            Additional styling options passed to daily_path_static
+
+        Returns
+        -------
+        plotly.graph_objects.Figure
+        """
+        fig = self.daily_path_static(locations_df, **options)
+
+        if not stays:
+            return fig
+
+        stays_df = pd.DataFrame(stays)
+        max_dur = stays_df['duration_seconds'].max()
+
+        # Scale marker size: 10px minimum, 30px for the longest stay
+        sizes = (stays_df['duration_seconds'] / max_dur * 20 + 10).tolist()
+
+        def _fmt(iso: str) -> str:
+            from datetime import datetime
+            dt = datetime.fromisoformat(iso)
+            return dt.strftime("%H:%M")
+
+        labels = [
+            f"{_fmt(s['entry_time'])}–{_fmt(s['exit_time'])}<br>"
+            f"{int(s['duration_seconds']) // 60} min"
+            for s in stays
+        ]
+
+        fig.add_trace(go.Scattermapbox(
+            lat=stays_df['centroid_lat'],
+            lon=stays_df['centroid_lon'],
+            mode='markers',
+            marker=dict(size=sizes, color='crimson', opacity=0.8),
+            text=labels,
+            hoverinfo='text',
+            name='Stays',
+        ))
+
+        return fig
+
     def path_by_speed_static(self, locations_df: pd.DataFrame, **options) -> go.Figure:
         """
         Create static trajectory map color-coded by speed

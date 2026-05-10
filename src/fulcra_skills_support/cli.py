@@ -126,15 +126,24 @@ def cmd_detect_stays() -> None:
 
 
 def cmd_daily_path() -> None:
-    """Generate a static daily path map and save to /tmp/fulcra_path_<date>.png."""
+    """Generate a static daily path map with stays overlaid, saved to /tmp/fulcra_path_<date>.png."""
     date = _require_date("daily-path")
     out = PATH_MAP_DIR / f"fulcra_path_{date}.png"
     try:
+        from .visualization.static import StaticMapGenerator
         viz = _get_visualizer()
-        print(f"Generating path map for {date}...")
-        fig = viz.daily_path_static(date, title=f"Daily path — {date}")
-        viz.save_static_map(fig, out)
-        print(f"Saved to {out}")
+        print(f"Fetching data and detecting stays for {date}...")
+        locations = viz.fetch_daily_data(date)
+        if locations.empty:
+            print("No location data found for this date.")
+            sys.exit(0)
+        stays = viz.detect_stays(date)
+        generator = StaticMapGenerator()
+        fig = generator.daily_path_with_stays_static(
+            locations, stays, title=f"Daily path — {date}"
+        )
+        generator.save_static_map(fig, out)
+        print(f"Saved to {out} ({len(locations)} points, {len(stays)} stays)")
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
