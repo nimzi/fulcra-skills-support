@@ -99,29 +99,30 @@ class StaticMapGenerator:
         if not stays:
             return fig
 
-        stays_df = pd.DataFrame(stays)
-        max_dur = stays_df['duration_seconds'].max()
-
-        # Scale marker size: 10px minimum, 30px for the longest stay
-        sizes = (stays_df['duration_seconds'] / max_dur * 20 + 10).tolist()
+        stays_sorted = sorted(stays, key=lambda s: s["entry_time"])
+        stays_df = pd.DataFrame(stays_sorted)
 
         def _fmt(iso: str) -> str:
             from datetime import datetime
             dt = datetime.fromisoformat(iso)
             return dt.strftime("%H:%M")
 
-        labels = [
-            f"{_fmt(s['entry_time'])}–{_fmt(s['exit_time'])}<br>"
+        numbers = [str(i) for i in range(1, len(stays_sorted) + 1)]
+        hover = [
+            f"Stay {i}: {_fmt(s['entry_time'])}–{_fmt(s['exit_time'])}, "
             f"{int(s['duration_seconds']) // 60} min"
-            for s in stays
+            for i, s in enumerate(stays_sorted, 1)
         ]
 
         fig.add_trace(go.Scattermapbox(
             lat=stays_df['centroid_lat'],
             lon=stays_df['centroid_lon'],
-            mode='markers',
-            marker=dict(size=sizes, color='crimson', opacity=0.8),
-            text=labels,
+            mode='markers+text',
+            marker=dict(size=20, color='crimson', opacity=0.9),
+            text=numbers,
+            textfont=dict(size=11, color='white'),
+            textposition='middle center',
+            hovertext=hover,
             hoverinfo='text',
             name='Stays',
         ))
