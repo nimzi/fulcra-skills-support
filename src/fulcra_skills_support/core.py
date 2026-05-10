@@ -8,8 +8,8 @@ import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
+import matplotlib.figure
 import pandas as pd
-import plotly.graph_objects as go
 
 from .auth import FulcraAuthError, TokenData, TokenManager, TokenStore, run_device_auth
 from .data import (
@@ -310,7 +310,7 @@ class FulcraVisualizer:
     
     # Static visualization methods
     def daily_path_static(self, date: Union[str, datetime.date], 
-                         timezone: Optional[str] = None, **options) -> go.Figure:
+                         timezone: Optional[str] = None, **options) -> matplotlib.figure.Figure:
         """
         Generate static trajectory map for a day
         
@@ -338,7 +338,7 @@ class FulcraVisualizer:
         return generator.daily_path_static(locations_df, **options)
     
     def path_by_speed_static(self, date: Union[str, datetime.date],
-                           timezone: Optional[str] = None, **options) -> go.Figure:
+                           timezone: Optional[str] = None, **options) -> matplotlib.figure.Figure:
         """
         Generate static speed-colored trajectory map
         
@@ -366,7 +366,7 @@ class FulcraVisualizer:
         return generator.path_by_speed_static(locations_df, **options)
     
     def stays_heatmap_static(self, date: Union[str, datetime.date],
-                           timezone: Optional[str] = None, **options) -> go.Figure:
+                           timezone: Optional[str] = None, **options) -> matplotlib.figure.Figure:
         """
         Generate static stay locations heatmap
         
@@ -393,7 +393,7 @@ class FulcraVisualizer:
         
         return generator.stays_heatmap_static(stays, **options)
     
-    def save_static_map(self, fig: go.Figure, filepath: Union[str, Path], 
+    def save_static_map(self, fig: matplotlib.figure.Figure, filepath: Union[str, Path], 
                        format: str = "png", **kwargs) -> None:
         """Save static map figure to file"""
         generator = StaticMapGenerator()
