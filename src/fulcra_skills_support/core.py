@@ -229,56 +229,48 @@ class FulcraVisualizer:
     def detect_stays_from_file(self, filepath: Union[str, Path], **detector_params) -> List[Dict]:
         """
         Detect stays from saved location data file
-        
+
         Parameters
         ----------
         filepath : str or Path
             Path to Parquet file with location data
         **detector_params
             Parameters for StayDetector
-            
+
         Returns
         -------
         list of dicts
             Stay records
         """
-        locations_df = load_location_data(filepath)
-        
+        return self._stays_from_df(load_location_data(filepath), **detector_params)
+
+    def _stays_from_df(self, locations_df: pd.DataFrame, **detector_params) -> List[Dict]:
         if locations_df.empty:
             return []
-        
         observations = locations_to_observations(locations_df)
-        
-        if detector_params:
-            detector = StayDetector(**detector_params)
-        else:
-            detector = self._stay_detector
-            
-        stays, debug_df = detector.detect_stays(observations)
-        
-        # Convert to dict format
-        stay_dicts = []
-        for stay in stays:
-            stay_dicts.append({
+        detector = StayDetector(**detector_params) if detector_params else self._stay_detector
+        stays, _ = detector.detect_stays(observations)
+        return [
+            {
                 'entry_time': datetime.datetime.fromtimestamp(stay.t_in, tz=datetime.timezone.utc).isoformat(),
                 'exit_time': datetime.datetime.fromtimestamp(stay.t_out, tz=datetime.timezone.utc).isoformat(),
                 'duration_seconds': stay.duration,
                 'centroid_lat': stay.lat,
                 'centroid_lon': stay.lon,
                 'n_points': stay.n_points,
-            })
-        
-        return stay_dicts
-    
+            }
+            for stay in stays
+        ]
+
     def detect_stays_from_loaded_data(self, **detector_params) -> List[Dict]:
         """
         Detect stays from previously loaded location data
-        
+
         Parameters
         ----------
         **detector_params
             Parameters for StayDetector
-            
+
         Returns
         -------
         list of dicts
@@ -286,8 +278,8 @@ class FulcraVisualizer:
         """
         if self._loaded_location_data is None:
             raise ValueError("No location data loaded. Use load_location_from_file() first.")
-        
-        return self.detect_stays_from_file("/tmp/temp_locations.parquet", **detector_params)
+
+        return self._stays_from_df(self._loaded_location_data, **detector_params)
     
     # Data file operations
     def save_location_data(self, locations_df: pd.DataFrame, filepath: Union[str, Path]) -> None:
